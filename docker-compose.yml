@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  telzir_db:
+    image: mysql:8.0.23
+    ports:
+      - '3307:3306'
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: telzir
+      MYSQL_ROOT_PASSWORD: develop
+    volumes:
+      - telzir_db_data:/var/lib/mysql
+
+  telzir:
+    build:
+      context: .
+      dockerfile: dev.dockerfile
+    ports:
+      - '5000:5000'
+    command: npm run start:dev
+    env_file:
+      - .env
+    depends_on:
+      - telzir_db
+    tty: true
+    volumes:
+      - .:/home/node/app
+      - /home/node/app/node_modules
+
+volumes:
+  telzir_db_data:
